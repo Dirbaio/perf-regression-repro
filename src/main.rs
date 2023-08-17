@@ -1,23 +1,11 @@
-#![feature(async_fn_in_trait)]
-#![feature(impl_trait_projections)]
 #![recursion_limit = "256"]
 
-trait Flash {
-    async fn write(&mut self);
-}
-
-struct FakeFlash;
-
-impl Flash for FakeFlash {
-    async fn write(&mut self) {}
+fn main() {
+    spawn(move || main0())
 }
 
 fn spawn<F>(future: impl FnOnce() -> F) {
     future();
-}
-
-fn main() {
-    spawn(move || main0())
 }
 
 async fn main0() {
@@ -180,9 +168,7 @@ async fn main39() {
     main40().await;
 }
 async fn main40() {
-    do_write(FakeFlash).await;
+    boom(&mut ()).await;
 }
 
-async fn do_write<F: Flash>(mut f: F) {
-    f.write().await;
-}
+async fn boom(f: &mut ()) {}
