@@ -1,10 +1,6 @@
-#![feature(type_alias_impl_trait)]
 #![feature(async_fn_in_trait)]
 #![feature(impl_trait_projections)]
 #![recursion_limit = "256"]
-
-use core::future::Future;
-use core::mem::MaybeUninit;
 
 trait Flash {
     async fn write(&mut self);
@@ -16,14 +12,12 @@ impl Flash for FakeFlash {
     async fn write(&mut self) {}
 }
 
-unsafe fn spawn<F>(pool: &mut MaybeUninit<F>, future: impl FnOnce() -> F) {
-    pool.as_mut_ptr().write(future());
+fn spawn<F>(future: impl FnOnce() -> F) {
+    future();
 }
 
 fn main() {
-    type Fut = impl Future + 'static;
-    static mut POOL: MaybeUninit<Fut> = MaybeUninit::uninit();
-    unsafe { spawn(&mut POOL, move || main0()) };
+    spawn(move || main0())
 }
 
 async fn main0() {
